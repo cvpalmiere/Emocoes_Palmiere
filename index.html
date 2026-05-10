@@ -701,44 +701,61 @@
             const topPct=totalOcc?(sorted[0][1]/totalOcc*100).toFixed(1):0;
             const topMeta=getEmotionMeta(topEmo);
 
-            // --- Chart canvas ---
-            const canvas=document.createElement('canvas');
-            canvas.width=600; canvas.height=600;
-            // Precisa estar visível no DOM para o Chart.js renderizar corretamente
-            canvas.style.position='fixed';
-            canvas.style.left='-9999px';
-            canvas.style.top='0';
-            canvas.style.width='600px';
-            canvas.style.height='600px';
-            document.body.appendChild(canvas);
-            const ctx=canvas.getContext('2d');
-
-            // Pinta fundo branco ANTES do Chart — evita transparência no PDF
-            ctx.fillStyle='#FFFFFF';
-            ctx.fillRect(0,0,600,600);
-
-            if(currentChart){ currentChart.destroy(); currentChart=null; }
-
+            // --- Gráfico de pizza desenhado manualmente com Canvas 2D puro ---
+            // (sem Chart.js para o PDF — evita problemas de animação e renderização assíncrona)
             const labels=[],counts=[],cols=[];
             getAllEmotions().forEach(e=>{ if(freq[e.name]){ labels.push(e.name); counts.push(freq[e.name]); cols.push(e.color); } });
             if(!labels.length){ labels.push('Sem dados'); counts.push(1); cols.push('#CCCCCC'); }
 
-            // Captura via onComplete para garantir que o desenho terminou de verdade
-            const imgData = await new Promise(resolve=>{
-                currentChart=new Chart(ctx,{
-                    type:'pie',
-                    data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:2, borderColor:'#FFFFFF' }] },
-                    options:{
-                        responsive:false,
-                        animation:{
-                            duration:0, // sem animação — renderiza imediato e completo
-                            onComplete: function(){ resolve(canvas.toDataURL('image/png')); }
-                        },
-                        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:14, font:{size:11} } } }
-                    }
-                });
+            const CW=600, CH=700; // altura extra para legenda
+            const canvas=document.createElement('canvas');
+            canvas.width=CW; canvas.height=CH;
+            const ctx=canvas.getContext('2d');
+
+            // Fundo branco
+            ctx.fillStyle='#FFFFFF';
+            ctx.fillRect(0,0,CW,CH);
+
+            const total=counts.reduce((s,v)=>s+v,0);
+            const cx=CW/2, cy=260, r=220;
+            let angle=-Math.PI/2; // começa no topo
+
+            // Fatias
+            counts.forEach((val,i)=>{
+                const slice=(val/total)*Math.PI*2;
+                ctx.beginPath();
+                ctx.moveTo(cx,cy);
+                ctx.arc(cx,cy,r,angle,angle+slice);
+                ctx.closePath();
+                ctx.fillStyle=cols[i];
+                ctx.fill();
+                // borda branca entre fatias
+                ctx.strokeStyle='#FFFFFF';
+                ctx.lineWidth=2;
+                ctx.stroke();
+                angle+=slice;
             });
-            document.body.removeChild(canvas);
+
+            // Legenda abaixo do gráfico
+            const legX=30, legStartY=510, lineH=22, colW=280;
+            ctx.font='500 14px sans-serif';
+            labels.forEach((lbl,i)=>{
+                const col=i%2===0?0:1;
+                const row=Math.floor(i/2);
+                const x=legX+col*colW;
+                const y=legStartY+row*lineH;
+                // quadradinho de cor
+                ctx.fillStyle=cols[i];
+                ctx.beginPath();
+                ctx.roundRect(x,y-11,14,14,3);
+                ctx.fill();
+                // texto
+                ctx.fillStyle='#44403C';
+                const pct=((counts[i]/total)*100).toFixed(1);
+                ctx.fillText(`${lbl} (${pct}%)`, x+20, y);
+            });
+
+            const imgData=canvas.toDataURL('image/png');
 
             const principalData=getPrincipalPerBin(arr);
             const notesArr=arr.filter(e=>e.note&&e.note.trim()).sort((a,b)=>b.timestamp-a.timestamp);
@@ -747,43 +764,33 @@
             const pdf=new jsPDF('p','mm','a4');
             const W=210, H=297;
 
+            function drawPageFrame(){
+                pdf.setFillColor(253,250,246); pdf.rect(0,0,W,H,'F');
+                pdf.setFillColor(232,96,122); pdf.rect(0,0,W,14,'F');
+                pdf.setFillColor(98,114,164); pdf.rect(0,14,6,H-28,'F');
+                pdf.setFillColor(232,96,122); pdf.rect(0,H-12,W,12,'F');
+            }
+
             // ===== PÁGINA 1 – CAPA =====
-            // Fundo suave
-            pdf.setFillColor(253,250,246);
-            pdf.rect(0,0,W,H,'F');
+            drawPageFrame();
 
-            // Barra topo
-            pdf.setFillColor(232,96,122);
-            pdf.rect(0,0,W,14,'F');
-
-            // Accent lateral
-            pdf.setFillColor(98,114,164);
-            pdf.rect(0,14,6,H-28,'F');
-
-            // Barra rodapé
-            pdf.setFillColor(232,96,122);
-            pdf.rect(0,H-12,W,12,'F');
-
-            // Título principal
             pdf.setFont('helvetica','bold');
             pdf.setFontSize(26);
             pdf.setTextColor(28,25,23);
             pdf.text('Diário de Emoções', W/2, 38, {align:'center'});
 
-            // Subtítulo tipo
             pdf.setFont('helvetica','normal');
             pdf.setFontSize(11);
             pdf.setTextColor(120,113,108);
             pdf.text(title.replace(/_/g,' '), W/2, 47, {align:'center'});
 
-            // Período – pill
             pdf.setFillColor(238,240,248);
             pdf.roundedRect(50, 52, W-100, 12, 6, 6, 'F');
             pdf.setFontSize(10);
             pdf.setTextColor(98,114,164);
             pdf.text(periodLabel, W/2, 60, {align:'center'});
 
-            // Stats resumo – linha de cards
+            // Cards de stats
             const statsY=75;
             const cardW=54, cardH=22, gap=8, startX=(W-(3*cardW+2*gap))/2;
             const stats=[
@@ -805,32 +812,38 @@
                 pdf.text(s.label, x+cardW/2, statsY+20, {align:'center'});
             });
 
-            // Gráfico
-            const chartY=103;
-            pdf.setFont('helvetica','bold');
-            pdf.setFontSize(11);
-            pdf.setTextColor(28,25,23);
-            pdf.text('Distribuição de emoções', W/2, chartY-3, {align:'center'});
-            const imgW=86, imgH=86;
-            pdf.addImage(imgData,'PNG',(W-imgW)/2, chartY, imgW, imgH);
-
-            // Destaque emoção top
-            const hlY=chartY+imgH+10;
+            // Destaque emoção predominante na capa
+            const hlY=108;
             pdf.setFillColor(...hexToRgb(topMeta.color));
-            pdf.roundedRect(30, hlY, W-60, 22, 6, 6, 'F');
-            pdf.setFont('helvetica','bold');
-            pdf.setFontSize(11);
+            pdf.roundedRect(20, hlY, W-40, 28, 8, 8, 'F');
+            pdf.setFont('helvetica','normal');
+            pdf.setFontSize(9);
             pdf.setTextColor(255,255,255);
-            pdf.text('Emoção predominante:', W/2, hlY+8, {align:'center'});
-            pdf.setFontSize(14);
-            pdf.text(`${topEmo}  —  ${topPct}% das marcações`, W/2, hlY+17, {align:'center'});
+            pdf.text('EMOÇÃO PREDOMINANTE', W/2, hlY+8, {align:'center'});
+            pdf.setFont('helvetica','bold');
+            pdf.setFontSize(18);
+            pdf.text(topEmo, W/2, hlY+19, {align:'center'});
+            pdf.setFont('helvetica','normal');
+            pdf.setFontSize(10);
+            pdf.text(`${topPct}% das marcações`, W/2, hlY+27, {align:'center'});
 
-            // ===== PÁGINA 2 – TABELA POR PERÍODO =====
+            // ===== PÁGINA 2 – GRÁFICO =====
             pdf.addPage();
-            pdf.setFillColor(253,250,246); pdf.rect(0,0,W,H,'F');
-            pdf.setFillColor(232,96,122); pdf.rect(0,0,W,14,'F');
-            pdf.setFillColor(98,114,164); pdf.rect(0,14,6,H-28,'F');
-            pdf.setFillColor(232,96,122); pdf.rect(0,H-12,W,12,'F');
+            drawPageFrame();
+
+            pdf.setFont('helvetica','bold');
+            pdf.setFontSize(16);
+            pdf.setTextColor(28,25,23);
+            pdf.text('Distribuição de emoções', W/2, 28, {align:'center'});
+
+            // Canvas 600×700: pizza ocupa os primeiros 520px, legenda os 180px restantes
+            // Mapeamos para largura 180mm no PDF → altura proporcional ≈ 210mm
+            const imgW=180, imgH=Math.round(imgW*(700/600));
+            pdf.addImage(imgData,'PNG',(W-imgW)/2, 35, imgW, imgH);
+
+            // ===== PÁGINA 3 – TABELA POR PERÍODO =====
+            pdf.addPage();
+            drawPageFrame();
 
             pdf.setFont('helvetica','bold');
             pdf.setFontSize(16);
@@ -901,12 +914,9 @@
             pdf.setDrawColor(200,195,190);
             pdf.line(col1, ty, W-col1, ty);
 
-            // ===== PÁGINA 3 – NOTAS =====
+            // ===== PÁGINA 4 – NOTAS =====
             pdf.addPage();
-            pdf.setFillColor(253,250,246); pdf.rect(0,0,W,H,'F');
-            pdf.setFillColor(232,96,122); pdf.rect(0,0,W,14,'F');
-            pdf.setFillColor(98,114,164); pdf.rect(0,14,6,H-28,'F');
-            pdf.setFillColor(232,96,122); pdf.rect(0,H-12,W,12,'F');
+            drawPageFrame();
 
             pdf.setFont('helvetica','bold');
             pdf.setFontSize(16);
@@ -921,7 +931,7 @@
                 pdf.text('Nenhuma nota registrada neste período.', W/2, ny+14, {align:'center'});
             } else {
                 notesArr.forEach((e,i)=>{
-                    if(ny>270){ pdf.addPage(); ny=20; }
+                    if(ny>270){ pdf.addPage(); drawPageFrame(); ny=20; }
                     const ds=new Date(e.timestamp).toLocaleDateString('pt-BR');
                     const ts=new Date(e.timestamp).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
