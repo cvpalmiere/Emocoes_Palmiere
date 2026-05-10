@@ -376,112 +376,117 @@
     }
 
     // ========== PDF CORRIGIDO ==========
-    async function generatePDF(entriesArray, title, periodLabel) {
-        if(entriesArray.length === 0) { alert("Nenhum registro para o período."); return; }
-        const totalOccurrences = entriesArray.reduce((acc,e)=>acc+e.emotions.length,0);
-        const freq = Object.fromEntries(EMOTIONS.map(e=>[e,0]));
-        entriesArray.forEach(e=>e.emotions.forEach(em=>freq[em]++));
-        let sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
-        let topEmotion = sorted[0][0];
-        let topPercent = totalOccurrences ? (sorted[0][1]/totalOccurrences*100).toFixed(1) : 0;
-        
-        // GRÁFICO CORRIGIDO - apenas emoções com freq > 0
-        const labels=[], counts=[], cols=[];
-        EMOTIONS.forEach(e=>{ if(freq[e]>0) { labels.push(e); counts.push(freq[e]); cols.push(EMOTION_COLORS[e]); } });
-        if(labels.length===0) { labels.push("Sem dados"); counts.push(1); cols.push("#CCCCCC"); }
-        
-        const canvas = document.createElement('canvas');
-        canvas.width = 500; canvas.height = 500;
-        document.body.appendChild(canvas);
-        const ctx = canvas.getContext('2d');
-        new Chart(ctx, { 
-            type:'pie', 
-            data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:0 }] }, 
-            options:{ responsive:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:15, font:{ size:12 } } } } } 
-        });
-        await new Promise(r=>setTimeout(r, 600));
-        const imgData = canvas.toDataURL();
-        
-        // Dados para tabela de horários (emoção principal por faixa)
-        const principalData = getPrincipalEmotionPerBin(entriesArray);
-        
-        // Notas (com data/hora, ordem mais recente primeiro)
-        const notesArray = entriesArray.filter(e=>e.note && e.note.trim() !== "").sort((a,b)=>b.timestamp - a.timestamp);
-        
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        // ========== PÁGINA 1 ==========
-        pdf.setFontSize(18); pdf.setTextColor(109,133,197);
-        pdf.text(title, 105, 20, { align: "center" });
-        pdf.setFontSize(11); pdf.setTextColor(80,80,80);
-        pdf.text(periodLabel, 105, 30, { align: "center" });
-        pdf.text(`Total de registros: ${entriesArray.length} | Total de marcações: ${totalOccurrences}`, 105, 38, { align: "center" });
-        
-        // Gráfico centralizado
-        const imgWidth = 90; const imgHeight = 90;
-        pdf.addImage(imgData, 'PNG', (210-imgWidth)/2, 48, imgWidth, imgHeight);
-        pdf.setFontSize(12); pdf.setTextColor(0,0,0);
-        pdf.text(`Emoção predominante geral: ${topEmotion} – ${topPercent}% das marcações`, 105, 155, { align: "center" });
-        
-        // Tabela de horários (usando texto estruturado, não retângulos)
-        pdf.setFontSize(11); pdf.setTextColor(109,133,197);
-        pdf.text("Emoção principal por período do dia (a cada 3h)", 20, 175);
-        pdf.setFontSize(9); pdf.setTextColor(60,60,60);
-        
-        let y = 185;
-        // Cabeçalho da tabela
-        pdf.setFont("helvetica", "bold");
-        pdf.text("Período", 25, y);
-        pdf.text("Emoção principal", 70, y);
-        pdf.text("% na faixa", 140, y);
-        y += 6;
-        pdf.setFont("helvetica", "normal");
-        
-        for(let bin of ALL_BINS) {
-            if(y > 270) { pdf.addPage(); y = 20; }
-            if(principalData[bin]) {
-                let emo = principalData[bin].emotion;
-                let percent = principalData[bin].percent;
-                pdf.text(bin, 25, y);
-                pdf.text(`${emo} ★`, 70, y);
-                pdf.text(`${percent}%`, 140, y);
-            } else {
-                pdf.text(bin, 25, y);
-                pdf.text("—", 70, y);
-                pdf.text("—", 140, y);
-            }
-            y += 7;
-        }
-        
-        // ========== PÁGINA 2 (notas) ==========
-        pdf.addPage();
-        pdf.setFontSize(14); pdf.setTextColor(109,133,197);
-        pdf.text("Notas registradas", 20, 25);
-        pdf.setFontSize(9); pdf.setTextColor(50,50,50);
-        let yNote = 35;
-        if(notesArray.length === 0) {
-            pdf.text("Nenhuma nota registrada neste período.", 25, yNote);
-        } else {
-            for(let i=0; i<notesArray.length; i++) {
-                if(yNote > 280) { pdf.addPage(); yNote = 20; }
-                let e = notesArray[i];
-                let dateStr = new Date(e.timestamp).toLocaleDateString('pt-BR');
-                let timeStr = new Date(e.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-                let header = `${i+1}. ${dateStr} ${timeStr}`;
-                pdf.setFont("helvetica", "bold");
-                pdf.text(header, 25, yNote);
-                pdf.setFont("helvetica", "normal");
-                yNote += 5;
-                let noteLines = pdf.splitTextToSize(e.note, 160);
-                pdf.text(noteLines, 30, yNote);
-                yNote += noteLines.length * 5 + 6;
-            }
-        }
-        pdf.save(`${title.toLowerCase().replace(/ /g,'_')}_${periodLabel.replace(/ /g,'_')}.pdf`);
-        document.body.removeChild(canvas);
+   async function generatePDF(entriesArray, title, periodLabel) {
+    if(entriesArray.length === 0) { alert("Nenhum registro para o período."); return; }
+    const totalOccurrences = entriesArray.reduce((acc,e)=>acc+e.emotions.length,0);
+    const freq = Object.fromEntries(EMOTIONS.map(e=>[e,0]));
+    entriesArray.forEach(e=>e.emotions.forEach(em=>freq[em]++));
+    let sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+    let topEmotion = sorted[0][0];
+    let topPercent = totalOccurrences ? (sorted[0][1]/totalOccurrences*100).toFixed(1) : 0;
+    
+    // GRÁFICO - apenas emoções com freq > 0
+    const labels=[], counts=[], cols=[];
+    EMOTIONS.forEach(e=>{ if(freq[e]>0) { labels.push(e); counts.push(freq[e]); cols.push(EMOTION_COLORS[e]); } });
+    if(labels.length===0) { labels.push("Sem dados"); counts.push(1); cols.push("#CCCCCC"); }
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = 500; canvas.height = 500;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    new Chart(ctx, { 
+        type:'pie', 
+        data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:0 }] }, 
+        options:{ responsive:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:15, font:{ size:12 } } } } } 
+    });
+    await new Promise(r=>setTimeout(r, 600));
+    const imgData = canvas.toDataURL();
+    
+    // Dados para tabela de horários (emoção principal por faixa)
+    const principalData = getPrincipalEmotionPerBin(entriesArray);
+    
+    // Notas (com data/hora, ordem mais recente primeiro)
+    const notesArray = entriesArray.filter(e=>e.note && e.note.trim() !== "").sort((a,b)=>b.timestamp - a.timestamp);
+    
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    
+    // Função auxiliar para limpar texto (substitui & por "e")
+    function cleanText(str) {
+        if(!str) return "";
+        return str.replace(/&/g, "e").replace(/</g, "lt").replace(/>/g, "gt");
     }
-
+    
+    // ========== PÁGINA 1 ==========
+    pdf.setFontSize(18); pdf.setTextColor(109,133,197);
+    pdf.text(title, 105, 20, { align: "center" });
+    pdf.setFontSize(11); pdf.setTextColor(80,80,80);
+    pdf.text(periodLabel, 105, 30, { align: "center" });
+    pdf.text(`Total de registros: ${entriesArray.length} | Total de marcações: ${totalOccurrences}`, 105, 38, { align: "center" });
+    
+    // Gráfico centralizado
+    const imgWidth = 90; const imgHeight = 90;
+    pdf.addImage(imgData, 'PNG', (210-imgWidth)/2, 48, imgWidth, imgHeight);
+    pdf.setFontSize(12); pdf.setTextColor(0,0,0);
+    pdf.text(`Emoção predominante geral: ${cleanText(topEmotion)} – ${topPercent}% das marcações`, 105, 155, { align: "center" });
+    
+    // Tabela de horários
+    pdf.setFontSize(11); pdf.setTextColor(109,133,197);
+    pdf.text("Emoção principal por período do dia (a cada 3h)", 20, 175);
+    pdf.setFontSize(9); pdf.setTextColor(60,60,60);
+    
+    let y = 185;
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Período", 25, y);
+    pdf.text("Emoção principal", 70, y);
+    pdf.text("% na faixa", 140, y);
+    y += 6;
+    pdf.setFont("helvetica", "normal");
+    
+    for(let bin of ALL_BINS) {
+        if(y > 270) { pdf.addPage(); y = 20; }
+        if(principalData[bin]) {
+            let emo = cleanText(principalData[bin].emotion);
+            let percent = principalData[bin].percent;
+            pdf.text(bin, 25, y);
+            pdf.text(`${emo} ★`, 70, y);
+            pdf.text(`${percent}%`, 140, y);
+        } else {
+            pdf.text(bin, 25, y);
+            pdf.text("—", 70, y);
+            pdf.text("—", 140, y);
+        }
+        y += 7;
+    }
+    
+    // ========== PÁGINA 2 (notas) ==========
+    pdf.addPage();
+    pdf.setFontSize(14); pdf.setTextColor(109,133,197);
+    pdf.text("Notas registradas", 20, 25);
+    pdf.setFontSize(9); pdf.setTextColor(50,50,50);
+    let yNote = 35;
+    if(notesArray.length === 0) {
+        pdf.text("Nenhuma nota registrada neste período.", 25, yNote);
+    } else {
+        for(let i=0; i<notesArray.length; i++) {
+            if(yNote > 280) { pdf.addPage(); yNote = 20; }
+            let e = notesArray[i];
+            let dateStr = new Date(e.timestamp).toLocaleDateString('pt-BR');
+            let timeStr = new Date(e.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            let header = `${i+1}. ${dateStr} ${timeStr}`;
+            pdf.setFont("helvetica", "bold");
+            pdf.text(header, 25, yNote);
+            pdf.setFont("helvetica", "normal");
+            yNote += 5;
+            let cleanNote = cleanText(e.note);
+            let noteLines = pdf.splitTextToSize(cleanNote, 160);
+            pdf.text(noteLines, 30, yNote);
+            yNote += noteLines.length * 5 + 6;
+        }
+    }
+    pdf.save(`${title.toLowerCase().replace(/ /g,'_')}_${periodLabel.replace(/ /g,'_')}.pdf`);
+    document.body.removeChild(canvas);
+} 
     async function exportWeekly() {
         const recent = getLast7DaysEntries();
         if(recent.length === 0) { alert("Nenhum registro nos últimos 7 dias."); return; }
