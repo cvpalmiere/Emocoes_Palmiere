@@ -703,23 +703,41 @@
 
             // --- Chart canvas ---
             const canvas=document.createElement('canvas');
-            canvas.width=500; canvas.height=500;
-            canvas.style.position='absolute'; canvas.style.top='-9999px';
+            canvas.width=600; canvas.height=600;
+            // Precisa estar visível no DOM para o Chart.js renderizar corretamente
+            canvas.style.position='fixed';
+            canvas.style.left='-9999px';
+            canvas.style.top='0';
+            canvas.style.width='600px';
+            canvas.style.height='600px';
             document.body.appendChild(canvas);
             const ctx=canvas.getContext('2d');
+
+            // Pinta fundo branco ANTES do Chart — evita transparência no PDF
+            ctx.fillStyle='#FFFFFF';
+            ctx.fillRect(0,0,600,600);
+
             if(currentChart){ currentChart.destroy(); currentChart=null; }
 
             const labels=[],counts=[],cols=[];
             getAllEmotions().forEach(e=>{ if(freq[e.name]){ labels.push(e.name); counts.push(freq[e.name]); cols.push(e.color); } });
             if(!labels.length){ labels.push('Sem dados'); counts.push(1); cols.push('#CCCCCC'); }
 
-            currentChart=new Chart(ctx,{
-                type:'pie',
-                data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:2, borderColor:'#FFFFFF' }] },
-                options:{ responsive:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:14, font:{size:11} } } } }
+            // Captura via onComplete para garantir que o desenho terminou de verdade
+            const imgData = await new Promise(resolve=>{
+                currentChart=new Chart(ctx,{
+                    type:'pie',
+                    data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:2, borderColor:'#FFFFFF' }] },
+                    options:{
+                        responsive:false,
+                        animation:{
+                            duration:0, // sem animação — renderiza imediato e completo
+                            onComplete: function(){ resolve(canvas.toDataURL('image/png')); }
+                        },
+                        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:14, font:{size:11} } } }
+                    }
+                });
             });
-            await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,200)));
-            const imgData=canvas.toDataURL();
             document.body.removeChild(canvas);
 
             const principalData=getPrincipalPerBin(arr);
