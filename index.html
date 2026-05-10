@@ -192,8 +192,7 @@
 <body>
 <div class="container">
     <h1><i class="fas fa-feather-alt"></i> Diário De Emoções</h1>
-    <div class="sub">Registre múltiplos sentimentos · Análise por horário (3h em 3h)</div>
-
+    
     <!-- Registro -->
     <div class="card">
         <div class="card-title"><i class="fas fa-pen-fancy"></i> <span>Como você se sente agora?</span> <span style="font-size:0.75rem; background:#FDF0F3; padding:4px 10px; border-radius:30px;" id="currentDateDisplay"></span></div>
@@ -225,7 +224,7 @@
                 <button id="exportMonthlyPdfBtn" class="btn-secondary"><i class="fas fa-file-pdf"></i> PDF mensal</button>
             </div>
         </div>
-        <p style="margin-top: 0.8rem; font-size: 0.75rem;">O PDF terá gráfico de pizza, cards com a emoção principal de cada faixa de 3h e lista numerada das notas com data/hora.</p>
+        <p style="margin-top: 0.8rem; font-size: 0.75rem;">O PDF terá gráfico de pizza, tabela com a emoção principal de cada faixa de 3h e lista numerada das notas com data/hora.</p>
     </div>
 
     <!-- Análise horária (visual) -->
@@ -238,7 +237,7 @@
             <div id="emotionHourDistribution" style="margin-top:1rem; background:#FEF9F5; border-radius:1rem; padding:0.8rem;"></div>
         </div>
     </div>
-    <footer>Ícones vetoriais · Dados salvos localmente · PDF com cards (emoção principal) e lista de notas</footer>
+    <footer>Ícones vetoriais · Dados salvos localmente · PDF com tabela (emoção principal) e lista de notas</footer>
 </div>
 
 <script>
@@ -315,7 +314,6 @@
     }
     const ALL_BINS = ["00h-03h","03h-06h","06h-09h","09h-12h","12h-15h","15h-18h","18h-21h","21h-00h"];
 
-    // Retorna, para um array de entries, um objeto com a emoção principal e sua % para cada bin
     function getPrincipalEmotionPerBin(entriesArray) {
         let data = Object.fromEntries(ALL_BINS.map(b=>[b,{}]));
         entriesArray.forEach(e=>{
@@ -326,10 +324,7 @@
         for(let bin of ALL_BINS) {
             const counts = data[bin];
             const total = Object.values(counts).reduce((a,b)=>a+b,0);
-            if(total===0) {
-                result[bin] = null;
-                continue;
-            }
+            if(total===0) { result[bin] = null; continue; }
             let items = Object.entries(counts).map(([emo,c])=>[emo, (c/total)*100]);
             items.sort((a,b)=>b[1]-a[1]);
             result[bin] = { emotion: items[0][0], percent: items[0][1].toFixed(1) };
@@ -352,10 +347,7 @@
                             </div>
                          </div>`;
             } else {
-                html += `<div class="hour-card">
-                            <div class="hour-title">${bin}</div>
-                            <div class="principal-emotion">—</div>
-                         </div>`;
+                html += `<div class="hour-card"><div class="hour-title">${bin}</div><div class="principal-emotion">—</div></div>`;
             }
         }
         html += `</div>`;
@@ -383,7 +375,7 @@
         };
     }
 
-    // ========== PDF COM CARDS (EMOÇÃO PRINCIPAL) E LISTA NUMERADA ==========
+    // ========== PDF CORRIGIDO ==========
     async function generatePDF(entriesArray, title, periodLabel) {
         if(entriesArray.length === 0) { alert("Nenhum registro para o período."); return; }
         const totalOccurrences = entriesArray.reduce((acc,e)=>acc+e.emotions.length,0);
@@ -392,66 +384,77 @@
         let sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
         let topEmotion = sorted[0][0];
         let topPercent = totalOccurrences ? (sorted[0][1]/totalOccurrences*100).toFixed(1) : 0;
-        // gráfico
+        
+        // GRÁFICO CORRIGIDO - apenas emoções com freq > 0
         const labels=[], counts=[], cols=[];
         EMOTIONS.forEach(e=>{ if(freq[e]>0) { labels.push(e); counts.push(freq[e]); cols.push(EMOTION_COLORS[e]); } });
+        if(labels.length===0) { labels.push("Sem dados"); counts.push(1); cols.push("#CCCCCC"); }
+        
         const canvas = document.createElement('canvas');
         canvas.width = 500; canvas.height = 500;
         document.body.appendChild(canvas);
         const ctx = canvas.getContext('2d');
-        new Chart(ctx, { type:'pie', data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:0 }] }, options:{ responsive:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:15, font:{ size:12 } } } } } });
+        new Chart(ctx, { 
+            type:'pie', 
+            data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:0 }] }, 
+            options:{ responsive:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:15, font:{ size:12 } } } } } 
+        });
         await new Promise(r=>setTimeout(r, 600));
         const imgData = canvas.toDataURL();
-        // Cards de emoção principal
+        
+        // Dados para tabela de horários (emoção principal por faixa)
         const principalData = getPrincipalEmotionPerBin(entriesArray);
+        
         // Notas (com data/hora, ordem mais recente primeiro)
         const notesArray = entriesArray.filter(e=>e.note && e.note.trim() !== "").sort((a,b)=>b.timestamp - a.timestamp);
+        
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
+        
         // ========== PÁGINA 1 ==========
         pdf.setFontSize(18); pdf.setTextColor(109,133,197);
         pdf.text(title, 105, 20, { align: "center" });
         pdf.setFontSize(11); pdf.setTextColor(80,80,80);
         pdf.text(periodLabel, 105, 30, { align: "center" });
         pdf.text(`Total de registros: ${entriesArray.length} | Total de marcações: ${totalOccurrences}`, 105, 38, { align: "center" });
+        
         // Gráfico centralizado
         const imgWidth = 90; const imgHeight = 90;
         pdf.addImage(imgData, 'PNG', (210-imgWidth)/2, 48, imgWidth, imgHeight);
         pdf.setFontSize(12); pdf.setTextColor(0,0,0);
         pdf.text(`Emoção predominante geral: ${topEmotion} – ${topPercent}% das marcações`, 105, 155, { align: "center" });
-        // Cards de horários (desenhar manualmente)
+        
+        // Tabela de horários (usando texto estruturado, não retângulos)
         pdf.setFontSize(11); pdf.setTextColor(109,133,197);
-        pdf.text("Emoção principal por período do dia (a cada 3h)", 20, 170);
-        let startX = 20;
-        let startY = 180;
-        let cardWidth = 45; // mm
-        let cardHeight = 25;
-        let colsPerRow = 4;
-        for(let i=0; i<ALL_BINS.length; i++) {
-            let bin = ALL_BINS[i];
-            let row = Math.floor(i / colsPerRow);
-            let col = i % colsPerRow;
-            let x = startX + col * (cardWidth + 5);
-            let y = startY + row * (cardHeight + 6);
-            if(y + cardHeight > 270) { pdf.addPage(); y = 20; startY = 20; }
-            // desenha retângulo do card
-            pdf.setDrawColor(242,228,220); pdf.setFillColor(254,250,247); pdf.rect(x, y, cardWidth, cardHeight, 'FD');
-            pdf.setFontSize(9); pdf.setTextColor(109,133,197);
-            pdf.text(bin, x+3, y+6);
+        pdf.text("Emoção principal por período do dia (a cada 3h)", 20, 175);
+        pdf.setFontSize(9); pdf.setTextColor(60,60,60);
+        
+        let y = 185;
+        // Cabeçalho da tabela
+        pdf.setFont("helvetica", "bold");
+        pdf.text("Período", 25, y);
+        pdf.text("Emoção principal", 70, y);
+        pdf.text("% na faixa", 140, y);
+        y += 6;
+        pdf.setFont("helvetica", "normal");
+        
+        for(let bin of ALL_BINS) {
+            if(y > 270) { pdf.addPage(); y = 20; }
             if(principalData[bin]) {
                 let emo = principalData[bin].emotion;
                 let percent = principalData[bin].percent;
-                pdf.setTextColor(50,50,50);
-                pdf.setFont("helvetica", "bold");
-                pdf.text(`${emo} ${percent}% ★`, x+3, y+16);
-                // ícone pequeno (texto simbólico porque não podemos renderizar Font Awesome no PDF facilmente)
-                pdf.setFont("helvetica", "normal");
+                pdf.text(bin, 25, y);
+                pdf.text(`${emo} ★`, 70, y);
+                pdf.text(`${percent}%`, 140, y);
             } else {
-                pdf.setTextColor(150,150,150);
-                pdf.text("—", x+3, y+16);
+                pdf.text(bin, 25, y);
+                pdf.text("—", 70, y);
+                pdf.text("—", 140, y);
             }
+            y += 7;
         }
-        // ========== PÁGINA 2 (notas em lista numerada) ==========
+        
+        // ========== PÁGINA 2 (notas) ==========
         pdf.addPage();
         pdf.setFontSize(14); pdf.setTextColor(109,133,197);
         pdf.text("Notas registradas", 20, 25);
@@ -461,6 +464,7 @@
             pdf.text("Nenhuma nota registrada neste período.", 25, yNote);
         } else {
             for(let i=0; i<notesArray.length; i++) {
+                if(yNote > 280) { pdf.addPage(); yNote = 20; }
                 let e = notesArray[i];
                 let dateStr = new Date(e.timestamp).toLocaleDateString('pt-BR');
                 let timeStr = new Date(e.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
@@ -472,7 +476,6 @@
                 let noteLines = pdf.splitTextToSize(e.note, 160);
                 pdf.text(noteLines, 30, yNote);
                 yNote += noteLines.length * 5 + 6;
-                if(yNote > 280) { pdf.addPage(); yNote = 20; }
             }
         }
         pdf.save(`${title.toLowerCase().replace(/ /g,'_')}_${periodLabel.replace(/ /g,'_')}.pdf`);
