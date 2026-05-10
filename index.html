@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Diário de Emoções · Flow</title>
+    <title>Diário de Emoções · Flow + PDF aprimorado</title>
     <!-- Fonte Google (Inter) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <!-- Font Awesome 6 -->
@@ -20,8 +20,8 @@
             box-sizing: border-box;
         }
         body {
-            background: #FDF9F6; /* off-white mais quente */
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #FDF9F6;
+            font-family: 'Inter', system-ui, sans-serif;
             color: #2D3E50;
             padding: 2rem 1.5rem;
         }
@@ -29,7 +29,6 @@
             max-width: 1300px;
             margin: 0 auto;
         }
-        /* Tipografia e cabeçalho */
         h1 {
             font-size: 2rem;
             font-weight: 600;
@@ -37,7 +36,6 @@
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            letter-spacing: -0.3px;
             display: inline-flex;
             align-items: center;
             gap: 12px;
@@ -54,16 +52,13 @@
             border-left: 3px solid #FBADC1;
             padding-left: 1rem;
             font-weight: 400;
-            font-size: 0.95rem;
         }
-        /* Cards */
         .card {
             background: rgba(255, 255, 255, 0.96);
             border-radius: 1.75rem;
             box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(109, 133, 197, 0.08);
             padding: 1.6rem;
             margin-bottom: 2rem;
-            transition: all 0.2s ease;
         }
         .card-title {
             font-size: 1.3rem;
@@ -79,9 +74,7 @@
         }
         .card-title i {
             color: #6D85C5;
-            font-size: 1.3rem;
         }
-        /* Grade de emoções */
         .emotions-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
@@ -102,19 +95,13 @@
             cursor: pointer;
             transition: all 0.2s;
             color: #2D3E50;
-            font-family: 'Inter', sans-serif;
         }
-        .emotion-btn i {
-            font-size: 1.1rem;
-            width: 1.4rem;
-        }
+        .emotion-btn i { font-size: 1.1rem; width: 1.4rem; }
         .emotion-btn.active {
             border-width: 2px;
             background: rgba(109, 133, 197, 0.08);
             transform: scale(0.98);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
         }
-        /* badges selecionadas */
         .selected-badge-area {
             background: #FCF6F2;
             border-radius: 1.5rem;
@@ -135,7 +122,6 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
             border-left: 4px solid;
             font-weight: 500;
         }
@@ -149,7 +135,6 @@
             resize: vertical;
             margin: 0.5rem 0 1rem;
             font-family: 'Inter', monospace;
-            transition: 0.2s;
         }
         textarea:focus {
             outline: none;
@@ -166,36 +151,26 @@
             cursor: pointer;
             transition: 0.2s;
             font-size: 0.85rem;
-            font-family: 'Inter', sans-serif;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         button i { font-size: 0.95rem; }
         button:hover {
             background: #5A6EA8;
             transform: translateY(-1px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
         }
         .btn-secondary {
             background: #FBADC1;
             color: #3E2A32;
         }
-        .btn-secondary:hover {
-            background: #F595B0;
-        }
+        .btn-secondary:hover { background: #F595B0; }
         .btn-outline {
             background: transparent;
             border: 1px solid #6D85C5;
             color: #6D85C5;
-            box-shadow: none;
         }
-        .btn-outline:hover {
-            background: #F1F4FD;
-            transform: none;
-        }
-        /* Histórico */
+        .btn-outline:hover { background: #F1F4FD; transform: none; }
         .history-list {
             display: flex;
             flex-direction: column;
@@ -209,8 +184,6 @@
             border-radius: 1.2rem;
             padding: 1rem 1.2rem;
             border-left: 5px solid #FBADC1;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            transition: 0.1s;
         }
         .history-header {
             display: flex;
@@ -224,15 +197,9 @@
             background: none;
             color: #CBD5E1;
             padding: 0;
-            font-size: 0.8rem;
             box-shadow: none;
         }
-        .delete-reg:hover {
-            color: #E11D48;
-            background: none;
-            transform: none;
-        }
-        /* gráfico PDF visual dentro do site */
+        .delete-reg:hover { color: #E11D48; background: none; transform: none; }
         .report-section {
             background: #FEFCF9;
             border-radius: 1.5rem;
@@ -240,8 +207,13 @@
             border: 1px solid #F3EAE2;
         }
         .chart-container {
-            max-width: 280px;
-            margin: 0 auto 1rem;
+            max-width: 300px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        canvas#weeklyPieChart {
+            max-width: 100% !important;
+            height: auto !important;
         }
         .notes-report {
             background: #FEF9F5;
@@ -259,7 +231,6 @@
             flex-wrap: wrap;
             gap: 0.8rem;
         }
-        /* análise horária */
         .hour-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -271,13 +242,11 @@
             border-radius: 1.2rem;
             padding: 0.9rem;
             border: 1px solid #F2E4DC;
-            transition: 0.1s;
         }
         .hour-title {
             font-weight: 700;
             color: #6D85C5;
             margin-bottom: 0.5rem;
-            font-size: 0.9rem;
         }
         select, input[type="month"] {
             padding: 0.5rem 1rem;
@@ -293,18 +262,9 @@
             color: #9AAEBF;
             margin-top: 2rem;
         }
-        /* scroll personalizado */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #F1EAE4;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #FBADC1;
-            border-radius: 10px;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #F1EAE4; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #FBADC1; border-radius: 10px; }
         @media (max-width: 700px) {
             body { padding: 1rem; }
             .emotions-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
@@ -314,7 +274,7 @@
 <body>
 <div class="container">
     <h1><i class="fas fa-feather-alt"></i> diário de emoções</h1>
-    <div class="sub">registre múltiplos sentimentos por dia · análise por horário (3 em 3h)</div>
+    <div class="sub">registre múltiplos sentimentos · análise por horário (3h em 3h) · PDF com gráfico e horários</div>
 
     <!-- registro -->
     <div class="card">
@@ -324,7 +284,7 @@
             <span style="font-size:0.75rem; color:#6D85C5;"><i class="fas fa-check-circle"></i> emoções neste momento:</span>
             <div class="badge-list" id="selectedPreview"></div>
         </div>
-        <textarea id="noteInput" rows="2" placeholder="Escreva o que aconteceu, um pensamento... (opcional)"></textarea>
+        <textarea id="noteInput" rows="2" placeholder="Escreva o que aconteceu... (opcional)"></textarea>
         <div class="flex-between">
             <button id="saveBtn"><i class="fas fa-save"></i> salvar registro</button>
             <button id="clearCurrentBtn" class="btn-outline"><i class="fas fa-eraser"></i> limpar</button>
@@ -337,19 +297,17 @@
         <div id="historyContainer" class="history-list">carregando...</div>
     </div>
 
-    <!-- relatório semanal + PDF -->
+    <!-- relatório semanal + PDF (agora com horários) -->
     <div class="card">
         <div class="card-title"><i class="fas fa-chart-pie"></i> <span>relatório semanal & PDF</span></div>
         <div id="reportArea">
             <div class="report-section" id="weeklyPdfContent">
-                <div style="text-align:center;"><h3 style="color:#6D85C5; margin-bottom:0.5rem;">📊 distribuição de emoções</h3><p style="font-size:0.7rem;">últimos 7 dias</p></div>
-                <div class="chart-container"><canvas id="weeklyPieChart" width="280" height="280"></canvas></div>
-                <div><strong><i class="fas fa-sticky-note"></i> todas as notas do período</strong><div id="notesListForReport" class="notes-report"></div></div>
+                <!-- conteúdo será clonado para o PDF, mas o gráfico e análise horária serão gerados dinamicamente -->
             </div>
         </div>
         <div class="flex-between" style="margin-top:1rem; justify-content:flex-end;">
             <button id="updateReportBtn" class="btn-secondary"><i class="fas fa-chart-simple"></i> atualizar</button>
-            <button id="exportPdfBtn"><i class="fas fa-file-pdf"></i> PDF semanal</button>
+            <button id="exportPdfBtn"><i class="fas fa-file-pdf"></i> PDF semanal (com horários)</button>
         </div>
     </div>
 
@@ -359,12 +317,12 @@
         <div class="flex-between" style="margin-bottom:1rem;">
             <label><i class="fas fa-calendar"></i> selecione o mês:</label>
             <input type="month" id="monthSelector" value="2026-05">
-            <button id="generateMonthlyPdfBtn" class="btn-secondary"><i class="fas fa-file-pdf"></i> PDF do mês</button>
+            <button id="generateMonthlyPdfBtn" class="btn-secondary"><i class="fas fa-file-pdf"></i> PDF mensal (com horários)</button>
         </div>
         <div id="monthlyPreview" class="report-section" style="max-height:320px; overflow:auto;"></div>
     </div>
 
-    <!-- análise horária 3h -->
+    <!-- análise horária 3h (visual) -->
     <div class="card">
         <div class="card-title"><i class="fas fa-clock"></i> <span>análise por período (a cada 3 horas)</span></div>
         <p style="margin-bottom:0.8rem; font-size:0.85rem;">padrões emocionais ao longo do dia</p>
@@ -375,18 +333,18 @@
             <div id="emotionHourDistribution" style="margin-top:1rem; background:#FEF9F5; border-radius:1rem; padding:0.8rem;"></div>
         </div>
     </div>
-    <footer>✨ sentimentos com cores únicas · dados salvos localmente · PDF com layout aprimorado</footer>
+    <footer>✨ sentimentos com cores únicas · PDF agora inclui gráfico + análise horária + notas em página separada</footer>
 </div>
 
 <script>
-    // ----------------------------- 30 EMOÇÕES (dados completos) -----------------------------
+    // ---------- 30 EMOÇÕES ----------
     const EMOTIONS = ["Raiva","Ansiedade","Medo","Surpresa","Nojo","Vergonha","Culpa","Tristeza","Alegria","Contentamento","Tédio","Solidão","Desesperança","Ciúmes","Inveja","Gratidão","Admiração","Desprezo","Empatia","Orgulho","Humilhação","Confiança","Insegurança","Esperança","Nostalgia","Alívio","Frustração","Calma","Excitação","Apatia"];
     const EMOTION_ICONS = { "Raiva":"fa-face-angry","Ansiedade":"fa-face-frown","Medo":"fa-face-flushed","Surpresa":"fa-face-surprise","Nojo":"fa-face-tired","Vergonha":"fa-face-flushed","Culpa":"fa-face-sad-tear","Tristeza":"fa-face-sad-cry","Alegria":"fa-face-grin","Contentamento":"fa-face-smile","Tédio":"fa-face-meh","Solidão":"fa-user","Desesperança":"fa-face-dizzy","Ciúmes":"fa-heart-broken","Inveja":"fa-eye","Gratidão":"fa-hands-clapping","Admiração":"fa-star","Desprezo":"fa-face-rolling-eyes","Empatia":"fa-hand-holding-heart","Orgulho":"fa-peacock","Humilhação":"fa-face-frown","Confiança":"fa-check-double","Insegurança":"fa-question","Esperança":"fa-dove","Nostalgia":"fa-clock","Alívio":"fa-face-relieved","Frustração":"fa-face-angry","Calma":"fa-spa","Excitação":"fa-face-grin-stars","Apatia":"fa-face-meh-blank"};
     const EMOTION_COLORS = { "Raiva":"#E57373","Ansiedade":"#FFB74D","Medo":"#9575CD","Surpresa":"#64B5F6","Nojo":"#81C784","Vergonha":"#F06292","Culpa":"#A1887F","Tristeza":"#7986CB","Alegria":"#FFF176","Contentamento":"#AED581","Tédio":"#BCAAA4","Solidão":"#90A4AE","Desesperança":"#B39DDB","Ciúmes":"#F48FB1","Inveja":"#A5D6A7","Gratidão":"#FFD54F","Admiração":"#FFB74D","Desprezo":"#DCE775","Empatia":"#4DB6AC","Orgulho":"#FF8A65","Humilhação":"#BCAAA4","Confiança":"#81D4FA","Insegurança":"#EF9A9A","Esperança":"#C5E1A5","Nostalgia":"#D7CCC8","Alívio":"#A5D6A7","Frustração":"#FFAB91","Calma":"#B2DFDB","Excitação":"#F8BBD0","Apatia":"#CFD8DC" };
 
     let entries = [], currentSelected = [], pieChartWeekly = null;
 
-    function getTodayLocal() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function getTodayLocal() { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
     function loadEntries() { const s = localStorage.getItem("mood_entries"); entries = s ? JSON.parse(s) : []; }
     function saveEntries() { localStorage.setItem("mood_entries", JSON.stringify(entries)); }
 
@@ -424,7 +382,7 @@
         entries.push({ date: getTodayLocal(), emotions: [...currentSelected], note: document.getElementById("noteInput").value.trim(), timestamp: Date.now() });
         saveEntries();
         currentSelected = []; updateSelectionUI(); document.getElementById("noteInput").value = "";
-        renderHistory(); updateWeeklyReportAndChart(); updateHourlyAnalysis(); updateMonthlyPreview();
+        renderHistory(); updateWeeklyDisplay(); updateHourlyAnalysis(); updateMonthlyPreview();
         alert("salvo com horário!");
     }
     function getLast7DaysEntries() { const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-6); weekAgo.setHours(0,0,0,0); return entries.filter(e=>new Date(e.date)>=weekAgo).sort((a,b)=>b.timestamp-a.timestamp); }
@@ -433,21 +391,47 @@
         const cont = document.getElementById("historyContainer");
         if(!rec.length) { cont.innerHTML = "<div style='text-align:center; padding:2rem;'>✨ Nenhum registro nos últimos 7 dias.</div>"; return; }
         cont.innerHTML = rec.map(e=>`<div class="history-item"><div class="history-header"><span class="history-date"><i class="far fa-calendar-alt"></i> ${e.date} ${new Date(e.timestamp).toLocaleTimeString()}</span><button class="delete-reg" data-id="${e.timestamp}"><i class="fas fa-trash-alt"></i></button></div><div class="history-emotions">${e.emotions.map(emo=>`<span class="mini-emotion" style="background:${EMOTION_COLORS[emo]}20; border-radius:20px; padding:2px 8px;"><i class="fas ${EMOTION_ICONS[emo]}"></i> ${emo}</span>`).join(' ')}</div>${e.note?`<div class="history-note"><i class="fas fa-quote-left"></i> ${escapeHtml(e.note)}</div>`:''}</div>`).join('');
-        document.querySelectorAll('.delete-reg').forEach(btn=>btn.addEventListener('click',()=>{ entries = entries.filter(e=>e.timestamp!==Number(btn.dataset.id)); saveEntries(); renderHistory(); updateWeeklyReportAndChart(); updateHourlyAnalysis(); updateMonthlyPreview(); }));
+        document.querySelectorAll('.delete-reg').forEach(btn=>btn.addEventListener('click',()=>{ entries = entries.filter(e=>e.timestamp!==Number(btn.dataset.id)); saveEntries(); renderHistory(); updateWeeklyDisplay(); updateHourlyAnalysis(); updateMonthlyPreview(); }));
     }
-    function updateWeeklyReportAndChart() {
+
+    // Função para atualizar a exibição semanal (gráfico + análise horária na tela)
+    function updateWeeklyDisplay() {
         const recent = getLast7DaysEntries();
+        const container = document.getElementById("weeklyPdfContent");
+        // Gerar gráfico e análise horária para os últimos 7 dias
         const freq = Object.fromEntries(EMOTIONS.map(e=>[e,0]));
         recent.forEach(e=>e.emotions.forEach(em=>freq[em]++));
         let labels=[], counts=[], cols=[];
         EMOTIONS.forEach(e=>{ if(freq[e]>0) { labels.push(e); counts.push(freq[e]); cols.push(EMOTION_COLORS[e]); } });
         if(!labels.length) { labels=["Sem dados"]; counts=[1]; cols=["#ccc"]; }
-        const ctx = document.getElementById("weeklyPieChart").getContext("2d");
+        // Criar canvas
+        container.innerHTML = `<div style="text-align:center;"><h3 style="color:#6D85C5;">Distribuição de emoções (últimos 7 dias)</h3></div>
+                               <div class="chart-container"><canvas id="weeklyPieChartCanvas" width="280" height="280"></canvas></div>
+                               <div id="weeklyHourlyAnalysis"></div>
+                               <div id="weeklyNotesList"></div>`;
+        const ctx = document.getElementById("weeklyPieChartCanvas").getContext("2d");
         if(pieChartWeekly) pieChartWeekly.destroy();
-        pieChartWeekly = new Chart(ctx, { type:'pie', data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'bottom', labels:{ font:{ size:9 } } } } } });
-        document.getElementById("notesListForReport").innerHTML = recent.length? recent.map(e=>`<div class="report-note-item"><strong>${e.date} ${new Date(e.timestamp).toLocaleTimeString()}</strong><div>${e.emotions.map(em=>`<span style="font-size:0.7rem;">${em}</span>`).join(' · ')}</div>${e.note?`<div>✍️ ${escapeHtml(e.note)}</div>`:''}</div>`).join('') : "<div>nenhuma nota</div>";
+        pieChartWeekly = new Chart(ctx, { type:'pie', data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{ size:10 } } } } } });
+        // análise horária dos últimos 7 dias
+        const hourlyHtml = buildHourlyAnalysisHTML(recent);
+        document.getElementById("weeklyHourlyAnalysis").innerHTML = `<div style="margin-top:1.5rem;"><strong>📊 Emoções por período (últimos 7 dias)</strong>${hourlyHtml}</div>`;
+        // notas
+        const notesHtml = recent.map(e=>`<div class="report-note-item"><strong>${e.date} ${new Date(e.timestamp).toLocaleTimeString()}</strong><div>${e.emotions.join(', ')}</div>${e.note?`<div>✍️ ${escapeHtml(e.note)}</div>`:''}</div>`).join('');
+        document.getElementById("weeklyNotesList").innerHTML = `<div style="margin-top:1.5rem;"><strong>📝 Notas do período</strong><div class="notes-report">${notesHtml || 'Nenhuma nota'}</div></div>`;
     }
+
+    function buildHourlyAnalysisHTML(entriesArray) {
+        const bins = ["00h-03h","03h-06h","06h-09h","09h-12h","12h-15h","15h-18h","18h-21h","21h-00h"];
+        let data = Object.fromEntries(bins.map(b=>[b,{}]));
+        entriesArray.forEach(e=>{ let bin=getHourBin(e.timestamp); e.emotions.forEach(emo=>{ data[bin][emo]=(data[bin][emo]||0)+1; }); });
+        let html = `<div class="hour-stats">`;
+        bins.forEach(b=>{ let top3 = Object.entries(data[b]).sort((a,b)=>b[1]-a[1]).slice(0,3); html+=`<div class="hour-card"><div class="hour-title">${b}</div><div class="emotion-list">${top3.length? top3.map(([emo,c])=>`<span style="background:${EMOTION_COLORS[emo]}20; padding:2px 6px; border-radius:20px; display:inline-block; margin:2px;"><i class="fas ${EMOTION_ICONS[emo]}"></i> ${emo} (${c})</span>`).join(' ') : '—'}</div></div>`; });
+        html+=`</div>`;
+        return html;
+    }
+
     function getHourBin(ts) { const h=new Date(ts).getHours(); if(h<3) return "00h-03h"; if(h<6) return "03h-06h"; if(h<9) return "06h-09h"; if(h<12) return "09h-12h"; if(h<15) return "12h-15h"; if(h<18) return "15h-18h"; if(h<21) return "18h-21h"; return "21h-00h"; }
+
     function updateHourlyAnalysis() {
         const bins = ["00h-03h","03h-06h","06h-09h","09h-12h","12h-15h","15h-18h","18h-21h","21h-00h"];
         let data = Object.fromEntries(bins.map(b=>[b,{}]));
@@ -468,32 +452,141 @@
             document.getElementById("emotionHourDistribution").innerHTML = dist;
         };
     }
+
+    async function exportWeeklyPDF() {
+        const recent = getLast7DaysEntries();
+        if(recent.length === 0) { alert("Nenhum registro nos últimos 7 dias."); return; }
+        // Criar um elemento temporário para o PDF
+        const tempDiv = document.createElement('div');
+        tempDiv.style.backgroundColor = "#FDF9F6";
+        tempDiv.style.padding = "20px";
+        tempDiv.style.width = "700px";
+        tempDiv.style.fontFamily = "'Inter', sans-serif";
+        tempDiv.innerHTML = `<h1 style="color:#6D85C5;">Relatório Semanal</h1><p>Período: ${recent[recent.length-1].date} a ${recent[0].date}</p>`;
+        // Gráfico
+        const freq = Object.fromEntries(EMOTIONS.map(e=>[e,0]));
+        recent.forEach(e=>e.emotions.forEach(em=>freq[em]++));
+        let labels=[], counts=[], cols=[];
+        EMOTIONS.forEach(e=>{ if(freq[e]>0) { labels.push(e); counts.push(freq[e]); cols.push(EMOTION_COLORS[e]); } });
+        const canvas = document.createElement('canvas');
+        canvas.width = 500; canvas.height = 500;
+        tempDiv.appendChild(canvas);
+        document.body.appendChild(tempDiv);
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, { type:'pie', data:{ labels, datasets:[{ data:counts, backgroundColor:cols, borderWidth:0 }] }, options:{ responsive:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:15, font:{ size:12 } } } } } });
+        await new Promise(r=>setTimeout(r, 500));
+        const imgData = canvas.toDataURL();
+        // Análise horária
+        const hourlyHtml = buildHourlyAnalysisHTML(recent);
+        const notesHtml = recent.map(e=>`<div style="border-bottom:1px solid #F2E4DC; padding:8px 0;"><strong>${e.date} ${new Date(e.timestamp).toLocaleTimeString()}</strong><br>${e.emotions.join(', ')}${e.note?`<br>📝 ${escapeHtml(e.note)}`:''}</div>`).join('');
+        tempDiv.innerHTML += `<div style="margin-top:20px;"><h3>📊 Emoções por período (3h em 3h)</h3>${hourlyHtml}</div>`;
+        tempDiv.innerHTML += `<div style="margin-top:30px;"><h3>📝 Notas do período</h3><div style="max-height:400px; overflow:auto;">${notesHtml || 'Nenhuma nota'}</div></div>`;
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        // Primeira página: gráfico + horários
+        const canvasElem = canvas;
+        const imgWidth = 100;
+        const imgHeight = 100;
+        pdf.addImage(imgData, 'PNG', (210 - imgWidth)/2, 30, imgWidth, imgHeight);
+        pdf.setFontSize(12);
+        pdf.text("Distribuição de emoções", 105, 20, { align: "center" });
+        // Adicionar análise horária na primeira página
+        pdf.setFontSize(10);
+        let y = 150;
+        const bins = ["00h-03h","03h-06h","06h-09h","09h-12h","12h-15h","15h-18h","18h-21h","21h-00h"];
+        let data = Object.fromEntries(bins.map(b=>[b,{}]));
+        recent.forEach(e=>{ let bin=getHourBin(e.timestamp); e.emotions.forEach(emo=>{ data[bin][emo]=(data[bin][emo]||0)+1; }); });
+        pdf.text("Emoções mais frequentes por período:", 20, 140);
+        y = 150;
+        for(let b of bins) {
+            let top3 = Object.entries(data[b]).sort((a,b)=>b[1]-a[1]).slice(0,3);
+            let line = `${b}: ` + (top3.length ? top3.map(([emo,c])=>`${emo} (${c})`).join(', ') : '—');
+            pdf.text(line, 20, y);
+            y += 8;
+            if(y > 270) { pdf.addPage(); y = 20; }
+        }
+        // Segunda página: notas
+        pdf.addPage();
+        pdf.text("Notas do período", 20, 20);
+        let yNote = 30;
+        recent.forEach(e => {
+            let line = `${e.date} ${new Date(e.timestamp).toLocaleTimeString()}: ${e.emotions.join(', ')}`;
+            pdf.text(line, 20, yNote);
+            yNote += 6;
+            if(e.note) {
+                let noteLines = pdf.splitTextToSize(`Nota: ${e.note}`, 170);
+                pdf.text(noteLines, 25, yNote);
+                yNote += noteLines.length * 5;
+            }
+            yNote += 4;
+            if(yNote > 280) { pdf.addPage(); yNote = 20; }
+        });
+        pdf.save("relatorio_semanal_com_horarios.pdf");
+        document.body.removeChild(tempDiv);
+    }
+
     async function generateMonthlyPDF() {
         let month = document.getElementById("monthSelector").value;
         if(!month) return;
         let [year, mon] = month.split('-');
         let monthEntries = entries.filter(e=>e.date.startsWith(`${year}-${mon}`));
         if(!monthEntries.length) { alert("sem registros"); return; }
-        let temp=document.createElement('div'); temp.style.backgroundColor="#FDF9F6"; temp.style.padding="20px"; temp.style.width="700px"; temp.style.fontFamily="'Inter',sans-serif";
-        temp.innerHTML=`<h2 style="color:#6D85C5;">Relatório mensal · ${month}</h2><p>${monthEntries.length} registros</p>`;
-        let freq={}; EMOTIONS.forEach(e=>freq[e]=0);
+        const tempDiv = document.createElement('div');
+        tempDiv.style.backgroundColor = "#FDF9F6";
+        tempDiv.style.padding = "20px";
+        tempDiv.style.width = "700px";
+        tempDiv.style.fontFamily = "'Inter', sans-serif";
+        tempDiv.innerHTML = `<h2 style="color:#6D85C5;">Relatório mensal - ${month}</h2><p>${monthEntries.length} registros</p>`;
+        const freq = Object.fromEntries(EMOTIONS.map(e=>[e,0]));
         monthEntries.forEach(e=>e.emotions.forEach(em=>freq[em]++));
         let labels=[], counts=[], cols=[];
-        EMOTIONS.forEach(e=>{ if(freq[e]>0){ labels.push(e); counts.push(freq[e]); cols.push(EMOTION_COLORS[e]); } });
-        let canvas=document.createElement('canvas'); canvas.width=400; canvas.height=400;
-        temp.appendChild(canvas); document.body.appendChild(temp);
-        new Chart(canvas.getContext('2d'),{ type:'pie', data:{ labels, datasets:[{ data:counts, backgroundColor:cols }] }, options:{ responsive:false } });
+        EMOTIONS.forEach(e=>{ if(freq[e]>0) { labels.push(e); counts.push(freq[e]); cols.push(EMOTION_COLORS[e]); } });
+        const canvas = document.createElement('canvas');
+        canvas.width = 500; canvas.height = 500;
+        tempDiv.appendChild(canvas);
+        document.body.appendChild(tempDiv);
+        new Chart(canvas.getContext('2d'), { type:'pie', data:{ labels, datasets:[{ data:counts, backgroundColor:cols }] }, options:{ responsive:false, plugins:{ legend:{ position:'bottom' } } } });
         await new Promise(r=>setTimeout(r,500));
-        let img = canvas.toDataURL();
-        let { jsPDF } = window.jspdf;
-        let pdf = new jsPDF('p','mm','a4');
-        pdf.addImage(img,'PNG',20,40,80,80);
-        pdf.setFontSize(14); pdf.text(`Relatório mensal - ${month}`,20,20);
-        let y=140; pdf.setFontSize(9);
-        monthEntries.forEach(e=>{ if(y>270){ pdf.addPage(); y=20; } pdf.text(`${e.date} ${new Date(e.timestamp).toLocaleTimeString()}: ${e.emotions.join(', ')} ${e.note?` - ${e.note.substring(0,80)}`:''}`,20,y); y+=8; });
-        pdf.save(`relatorio_${month}.pdf`);
-        document.body.removeChild(temp);
+        const imgData = canvas.toDataURL();
+        const hourlyHtml = buildHourlyAnalysisHTML(monthEntries);
+        tempDiv.innerHTML += `<div style="margin-top:20px;"><h3>📊 Emoções por período (3h em 3h) - mês ${month}</h3>${hourlyHtml}</div>`;
+        const notesHtml = monthEntries.map(e=>`<div style="border-bottom:1px solid #E2DCD6; padding:8px 0;"><strong>${e.date} ${new Date(e.timestamp).toLocaleTimeString()}</strong><br>${e.emotions.join(', ')}${e.note?`<br>📝 ${escapeHtml(e.note)}`:''}</div>`).join('');
+        tempDiv.innerHTML += `<div style="margin-top:30px;"><h3>📝 Notas do mês</h3>${notesHtml}</div>`;
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        pdf.addImage(imgData, 'PNG', (210-100)/2, 30, 100, 100);
+        pdf.text(`Relatório mensal - ${month}`, 105, 20, { align: "center" });
+        let y = 150;
+        const bins = ["00h-03h","03h-06h","06h-09h","09h-12h","12h-15h","15h-18h","18h-21h","21h-00h"];
+        let data = Object.fromEntries(bins.map(b=>[b,{}]));
+        monthEntries.forEach(e=>{ let bin=getHourBin(e.timestamp); e.emotions.forEach(emo=>{ data[bin][emo]=(data[bin][emo]||0)+1; }); });
+        pdf.text("Emoções por período:", 20, 140);
+        for(let b of bins) {
+            let top3 = Object.entries(data[b]).sort((a,b)=>b[1]-a[1]).slice(0,3);
+            let line = `${b}: ` + (top3.length ? top3.map(([emo,c])=>`${emo} (${c})`).join(', ') : '—');
+            pdf.text(line, 20, y);
+            y += 8;
+            if(y > 270) { pdf.addPage(); y = 20; }
+        }
+        pdf.addPage();
+        pdf.text("Notas do mês", 20, 20);
+        let yNote = 30;
+        monthEntries.forEach(e => {
+            let line = `${e.date} ${new Date(e.timestamp).toLocaleTimeString()}: ${e.emotions.join(', ')}`;
+            pdf.text(line, 20, yNote);
+            yNote += 6;
+            if(e.note) {
+                let noteLines = pdf.splitTextToSize(`Nota: ${e.note}`, 170);
+                pdf.text(noteLines, 25, yNote);
+                yNote += noteLines.length * 5;
+            }
+            yNote += 4;
+            if(yNote > 280) { pdf.addPage(); yNote = 20; }
+        });
+        pdf.save(`relatorio_mensal_${month}_com_horarios.pdf`);
+        document.body.removeChild(tempDiv);
     }
+
     function updateMonthlyPreview() {
         let month = document.getElementById("monthSelector").value;
         let [year,mon]=month.split('-');
@@ -508,14 +601,16 @@
         let can = document.getElementById("monthPrevCanvas");
         if(can) new Chart(can.getContext('2d'),{ type:'pie', data:{ labels, datasets:[{ data:counts, backgroundColor:labels.map(l=>EMOTION_COLORS[l]) }] }, options:{ responsive:true } });
     }
+
     function escapeHtml(str) { return str.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
     document.addEventListener("DOMContentLoaded",()=>{
         loadEntries(); renderEmotionsGrid(); document.getElementById("currentDateDisplay").innerText = getTodayLocal();
-        renderHistory(); updateWeeklyReportAndChart(); updateHourlyAnalysis(); updateMonthlyPreview();
+        renderHistory(); updateWeeklyDisplay(); updateHourlyAnalysis(); updateMonthlyPreview();
         document.getElementById("saveBtn").onclick=saveCurrent; document.getElementById("clearCurrentBtn").onclick=clearCurrent;
-        document.getElementById("refreshHistoryBtn").onclick=()=>{ renderHistory(); updateWeeklyReportAndChart(); updateHourlyAnalysis(); updateMonthlyPreview(); };
-        document.getElementById("updateReportBtn").onclick=()=>updateWeeklyReportAndChart();
-        document.getElementById("exportPdfBtn").onclick=async()=>{ let el=document.getElementById("weeklyPdfContent"); let canvas=await html2canvas(el,{scale:2,backgroundColor:"#FDF9F6"}); let img=canvas.toDataURL(); let {jsPDF}=window.jspdf; let pdf=new jsPDF('p','mm','a4'); pdf.addImage(img,'PNG',10,10,190,0); pdf.save("relatorio_semanal.pdf"); };
+        document.getElementById("refreshHistoryBtn").onclick=()=>{ renderHistory(); updateWeeklyDisplay(); updateHourlyAnalysis(); updateMonthlyPreview(); };
+        document.getElementById("updateReportBtn").onclick=()=>updateWeeklyDisplay();
+        document.getElementById("exportPdfBtn").onclick=exportWeeklyPDF;
         document.getElementById("generateMonthlyPdfBtn").onclick=generateMonthlyPDF;
         document.getElementById("monthSelector").onchange=updateMonthlyPreview;
     });
